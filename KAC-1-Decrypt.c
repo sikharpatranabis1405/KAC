@@ -48,60 +48,36 @@ void ReadParams(){
 
 }
 
-void ReadPK(){
+void GetSubSet(char* S_File){
 
-	FILE* f_PK = fopen("PK.dat", "r");
+	FILE* f_S = fopen(S_File,"r");
 
-	ReadElFromFile(f_PK, buffer, SIZE_1);
-	element_from_bytes(PK.PK_1, buffer);
-
-	ReadElFromFile(f_PK, buffer, SIZE_2);
-	element_from_bytes(PK.PK_2, buffer);
-	
-	fclose(f_PK);
-
-}
-
-void Encrypt(int i, char* msg, int len){
-
-	element_random(temp);
-
-	element_pow_zn(CText.c_0, Q, temp);
-
-	element_mul(CText.c_1, PK.PK_2, Y_Q[i]);
-	element_pow_zn(CText.c_1, CText.c_1, temp);
-
-	pairing_apply(CText.c_2_temp, Y_P[N], Y_Q[1], pairing);
-	element_pow_zn(CText.c_2_temp, CText.c_2_temp, temp);
-
-	element_to_bytes(buffer, CText.c_2_temp);
-	int j;
-	for(j = 0; j < SIZE_3; j++){
-
-		CText.c_2[j] = (char) (buffer[j]^msg[j]);
+	int i;
+	for(i = 1; i <= N; i++){
+		fscanf(f_S, "%d", &S[i]);
+		// printf("%d\n",S[i]);
 	}
+}
 
+void ReadK_S(){
+
+	FILE* f_K_S = fopen("K_S.dat", "r");
+
+	ReadElFromFile(f_K_S, buffer, SIZE_1);
+	element_from_bytes(K_S, buffer);
+
+	fclose(f_K_S);
 
 }
 
-void Output(int i){
+void ReadCText(int i){
 
 	sprintf(buffer,"CText_%d.dat",i);
-	FILE* f_CText = fopen(buffer,"w");
+	FILE* f_CText = fopen(buffer,"r");
 
 	int j;
 
-	element_to_bytes(buffer, CText.c_0);
-
-	// for(j = 0; j < SIZE_2; j++){
-	// 	printf("%c",buffer[j]);
-	// }
-
-	// printf("\n\n********************************************************************\n\n");
-
-	WriteEltoFile(f_CText, buffer, SIZE_2);
-
-	element_to_bytes(buffer, CText.c_1);
+	ReadElFromFile(f_CText, buffer, SIZE_2);
 	
 	// for(j = 0; j < SIZE_2; j++){
 	// 	printf("%c",buffer[j]);
@@ -109,28 +85,75 @@ void Output(int i){
 
 	// printf("\n\n********************************************************************\n\n");
 
-	WriteEltoFile(f_CText, buffer, SIZE_2);
+	element_from_bytes(CText.c_0, buffer);
 
+	ReadElFromFile(f_CText, buffer, SIZE_2);
+	
+	// for(j = 0; j < SIZE_2; j++){
+	// 	printf("%c",buffer[j]);
+	// }
+
+	// printf("\n\n********************************************************************\n\n");
+
+	element_from_bytes(CText.c_1, buffer);
+
+	ReadElFromFile(f_CText, CText.c_2, SIZE_3);
+	
 	// for(j = 0; j < SIZE_3; j++){
 	// 	printf("%c", CText.c_2[j]);
 	// }
 
 	// printf("\n\n********************************************************************\n\n");
 
-	WriteEltoFile(f_CText, CText.c_2, SIZE_3);	
-
 	fclose(f_CText);
+}
+
+void Decrypt(int i, char* msg){
+
+	element_set1(a_S);
+	element_set1(b_S);
+
+	int j;
+
+	for(j = 1; j<=N; j++){
+
+		if(S[j] == 1){
+			element_mul(b_S, b_S, Y_P[N+1-j]);
+			if(j != i){
+				element_mul(a_S, a_S, Y_P[N+1-j+i]);
+			}
+		}
+
+	}
+
+	element_mul(K_S, K_S, a_S);
+	pairing_apply(temp1, K_S, CText.c_0, pairing);
+	pairing_apply(temp2, b_S, CText.c_1, pairing);
+	element_invert(temp2, temp2);
+	element_mul(temp1, temp1, temp2);
+
+	element_to_bytes(buffer, temp1);
+
+	for(j = 0; j < SIZE_3; j++){
+
+		msg[j] = (char) (buffer[j]^CText.c_2[j]);
+	}
+
 }
 
 int main(int argc, char* argv[]){
 
 	InitializePairing("pbc-0.5.14/param/f.param");
 	InitializeVar();
-
 	ReadParams();
-	ReadPK();
-	Encrypt((int)(atoi(argv[1])), argv[2], strlen(argv[2]));
-	Output((int)(atoi(argv[1])));
+	GetSubSet(argv[1]);
+	ReadK_S();
+	ReadCText((int)(atoi(argv[2])));
+
+	char msg[SIZE_3];
+	Decrypt((int)(atoi(argv[2])), msg);
+
+	printf("%s\n", msg);
 
 	return 0;
 }

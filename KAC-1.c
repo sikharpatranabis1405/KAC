@@ -5,7 +5,7 @@
 #include <math.h>
 #include "pbc-0.5.14/include/pbc.h"
 
-#define N 100
+#define N 10
 #define SIZE_1 40
 #define SIZE_2 80
 #define SIZE_3 240
@@ -41,16 +41,21 @@ typedef struct{
 
 CT CText;
 
-int S[N];
+int S[N+1];
 
 element_t K_S;
 
 element_t alpha;
-element_t Y_P[N+1];
-element_t Y_Q[N+1];
+element_t Y_P[2*N+1];
+element_t Y_Q[2*N+1];
 
 element_t M;
 element_t temp;
+
+element_t a_S;
+element_t b_S;
+element_t temp1;
+element_t temp2;
 
 
 void InitializePairing(char* paramFile){
@@ -78,10 +83,17 @@ void InitializeVar(){
 
 	element_init_G1(K_S, pairing);
 
+	int i;
+
+	for(i = 0; i <= N; i++){
+
+		S[i] = 0;
+
+	}
+
 	element_init_Zr(alpha, pairing);
 
-	int i;
-	for(i = 0; i <= N; i++){
+	for(i = 0; i <= 2*N; i++){
 
 		element_init_G1(Y_P[i], pairing);
 		element_init_G2(Y_Q[i], pairing);
@@ -89,6 +101,13 @@ void InitializeVar(){
 
 	element_init_GT(M, pairing);
 	element_init_Zr(temp, pairing);
+	
+
+	element_init_G1(a_S, pairing);
+	element_init_G1(b_S, pairing);
+
+	element_init_GT(temp1, pairing);
+	element_init_GT(temp2, pairing);
 
 		
 }
@@ -111,6 +130,11 @@ void ReadElFromFile(FILE* f_ptr, char* buffer, int size){
 
 		fscanf(f_ptr, "%c", &temp);
 		buffer[i] = temp;
+	}
+
+	for(i = size; i < SIZE_3; i++){
+
+		buffer[i] = 0;
 	}	
 }
 

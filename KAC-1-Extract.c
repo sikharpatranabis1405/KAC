@@ -85,9 +85,9 @@ void Extract(){
 
 }
 
-void OutPut(){
+void OutPut(char* K_file){
 
-	FILE* f_K_S = fopen("K_S.dat","w");
+	FILE* f_K_S = fopen(K_file,"w");
 
 	element_to_bytes(buffer, K_S);
 	WriteEltoFile(f_K_S, buffer, SIZE_2);
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]){
 	Readmsk();
 	GetSubSet(argv[1]);
 	Extract();
-	OutPut();
+	OutPut(argv[2]);
 
 	return 0;
 }

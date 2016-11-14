@@ -59,9 +59,9 @@ void GetSubSet(char* S_File){
 	}
 }
 
-void ReadK_S(){
+void ReadK_S(char* K_file){
 
-	FILE* f_K_S = fopen("K_S.dat", "r");
+	FILE* f_K_S = fopen(K_file, "r");
 
 	ReadElFromFile(f_K_S, buffer, SIZE_1);
 	element_from_bytes(K_S, buffer);
@@ -147,11 +147,11 @@ int main(int argc, char* argv[]){
 	InitializeVar();
 	ReadParams();
 	GetSubSet(argv[1]);
-	ReadK_S();
-	ReadCText((int)(atoi(argv[2])));
+	ReadK_S(argv[2]);
+	ReadCText((int)(atoi(argv[3])));
 
 	char msg[SIZE_3];
-	Decrypt((int)(atoi(argv[2])), msg);
+	Decrypt((int)(atoi(argv[3])), msg);
 
 	printf("%s\n", msg);
 

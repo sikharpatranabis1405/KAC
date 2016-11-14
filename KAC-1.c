@@ -5,7 +5,7 @@
 #include <math.h>
 #include "pbc-0.5.14/include/pbc.h"
 
-#define N 10
+#define N 100
 #define SIZE_1 40
 #define SIZE_2 80
 #define SIZE_3 240

@@ -13,9 +13,15 @@ void SetUp(){
 
 	element_random(alpha);
 
-	int i;
+	int i,j;
 	
 	element_set(Y_P[0], P);
+	// element_to_bytes(buffer, Y_P[0]);
+	// for(j = 0; j < SIZE_1; j++){
+	// 	printf("%c",buffer[j]);
+	// }
+
+	// printf("\n\n********************************************************************\n\n");
 	element_set(Y_Q[0], Q);
 
 	for(i = 1; i <= 2*N; i++){
